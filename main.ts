@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
 // The judged text: one line, the excuse an AI agent gives its human for
@@ -26,3 +26,10 @@ if (
 const out = process.env.ENTRY_OUTPUT ?? "/output/entry.txt";
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, entry);
+
+// Verify the write: read the file back and require a byte-for-byte match
+// with the judged text, so a partial or recoded write can never silently
+// change what the judge reads.
+if (readFileSync(out, "utf8") !== entry) {
+  throw new Error("written entry does not match the judged text");
+}
